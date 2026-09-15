@@ -531,6 +531,24 @@ overrides:
 
 ---
 
+### D-29 — CI must not set `pnpm/action-setup` `version` when `packageManager` is present
+
+**Symptom on GitHub Actions:** job fails in seconds with:
+
+```
+Error: Multiple versions of pnpm specified:
+  - version 11 in the GitHub Action config with the key "version"
+  - version pnpm@11.17.0 in the package.json with the key "packageManager"
+```
+
+**Cause:** `pnpm/action-setup@v4` refuses a dual pin. The workflow had `with: version: 11` while `package.json` declares `"packageManager": "pnpm@11.17.0"`.
+
+**Adaptation:** omit `version` on every `pnpm/action-setup@v4` step so the action reads `packageManager` alone. Keep the exact pin in `package.json` (and Corepack locally). Do not re-add a workflow `version:` unless you also remove `packageManager`.
+
+(The separate “Node.js 20 is deprecated” annotation on `actions/checkout` / `pnpm/action-setup` is only about those actions’ own runtime; `.nvmrc` still pins Node 24 for the job and does not fail CI.)
+
+---
+
 ## Still unverified
 
 These need a live Orbitype connector and remain open (§23.3):

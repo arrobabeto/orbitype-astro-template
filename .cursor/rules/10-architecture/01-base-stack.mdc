@@ -20,6 +20,7 @@ alwaysApply: true
 - First-time setup: **`pnpm run setup`** (not `pnpm setup` — shadows pnpm's built-in command)
 - Install: `pnpm install --frozen-lockfile` in CI
 - Settings live in `pnpm-workspace.yaml`, not `package.json#pnpm`
+- CI: `pnpm/action-setup@v4` must **not** set `version:` — use `package.json#packageManager` only (see docs/DEVIATIONS.md D-29)
 
 ## Config files
 
