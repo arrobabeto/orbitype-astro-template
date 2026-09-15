@@ -16,6 +16,14 @@ allowBuilds:
 # incompatibility documented in docs/DEVIATIONS.md (D-01).
 strictPeerDependencies: true
 
+# sanitize-html@2.17.x depends on htmlparser2@^12 (ESM-only). On Vercel Node
+# serverless the CJS sanitize-html entry does require("htmlparser2") and
+# throws ERR_REQUIRE_ESM at runtime. Pin the last dual CJS/ESM release.
+# See docs/DEVIATIONS.md D-28. Remove when sanitize-html ships ESM or drops
+# the CJS require of htmlparser2.
+overrides:
+  htmlparser2: "9.1.0"
+
 peerDependencyRules:
   allowedVersions:
     # eslint-plugin-astro >= 2.0.0 requires eslint >= 10 *and* requires

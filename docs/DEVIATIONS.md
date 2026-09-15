@@ -509,6 +509,28 @@ Expected the Vercel build output to show cache configuration, by analogy with IS
 
 ---
 
+### D-28 — `htmlparser2` pinned to `9.1.0` for Vercel serverless
+
+**Symptom on Vercel Production/Preview:** every SSR request returns 500 with:
+
+```
+Error [ERR_REQUIRE_ESM]: require() of ES Module .../htmlparser2@12.0.0/...
+from .../sanitize-html@2.17.x/... not supported.
+```
+
+**Cause:** `sanitize-html@2.17+` depends on `htmlparser2@^12`, which is ESM-only. The published `sanitize-html` entry is still CommonJS and does `require("htmlparser2")`. Vite/dev often masks this; the `@astrojs/vercel` Node function does not. The crash surfaces as soon as the server bundle loads [`src/lib/sanitize.ts`](../src/lib/sanitize.ts) (via `SafeHtml`), including catch-all hits for missing static assets.
+
+**Adaptation:** pnpm override in `pnpm-workspace.yaml` (pnpm 11 — not `package.json#pnpm`):
+
+```yaml
+overrides:
+  htmlparser2: "9.1.0"
+```
+
+`9.1.0` is dual CJS/ESM (`exports.require` + `exports.import`). Downgrading `sanitize-html` to `2.16.x` also works but drops 2.17 patches; the override is narrower. Remove when `sanitize-html` ships an ESM entry that no longer `require()`s ESM-only `htmlparser2`.
+
+---
+
 ## Still unverified
 
 These need a live Orbitype connector and remain open (§23.3):
